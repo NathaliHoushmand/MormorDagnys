@@ -23,3 +23,75 @@ INSERT INTO Ingredient (ArticleNumber, Name, PricePerKg, StockKg, ReorderLevelKg
 ('OS-1307', 'Sesame seeds',   44.00,   5.5,  4.0, 4),
 ('KC-7701', 'Dark chocolate', 92.00,  11.0, 15.0, 5),
 ('KC-7712', 'Cocoa powder',   74.00,   6.0,  5.0, 5);
+
+INSERT INTO ProductCategory (Name) VALUES
+('Buns'),
+('Bread'),
+('Pastry');
+
+INSERT INTO Product (Name, CategoryId) VALUES
+('Cinnamon bun',   1),
+('Cardamom bun',   1),
+('Rye bread',      2),
+('Sesame loaf',    2),
+('Chocolate cake', 3),
+('Vanilla hearts', 3);
+
+INSERT INTO Recipe (ProductId, Instructions) VALUES
+(1, 'Knead the dough, let it rise, roll out and spread with butter, sugar and cinnamon. Cut, proof and bake.'),
+(2, 'Knead cardamom dough, let it rise, twist into knots, top with pearl sugar and bake.'),
+(3, 'Mix rye and wheat flour, let it rise slowly, shape and bake at lower heat.'),
+(4, 'Knead a plain wheat dough, shape loaves, cover with sesame seeds and bake.'),
+(5, 'Melt chocolate and butter, whisk in eggs and sugar, fold in flour and cocoa, bake.'),
+(6, 'Rub butter into flour and sugar, add vanilla sugar and egg, chill, cut out and bake.');
+
+WITH v (Product, Ingredient, Amount) AS (VALUES
+    ('Cinnamon bun',   'Wheat flour',    3.000),
+    ('Cinnamon bun',   'Fresh yeast',    0.120),
+    ('Cinnamon bun',   'Sugar',          0.400),
+    ('Cinnamon bun',   'Butter',         0.600),
+    ('Cinnamon bun',   'Whole milk',     1.500),
+    ('Cinnamon bun',   'Cinnamon',       0.050),
+    ('Cinnamon bun',   'Salt',           0.040),
+
+    ('Cardamom bun',   'Wheat flour',    3.000),
+    ('Cardamom bun',   'Fresh yeast',    0.120),
+    ('Cardamom bun',   'Sugar',          0.400),
+    ('Cardamom bun',   'Butter',         0.600),
+    ('Cardamom bun',   'Whole milk',     1.500),
+    ('Cardamom bun',   'Cardamom',       0.030),
+    ('Cardamom bun',   'Pearl sugar',    0.150),
+    ('Cardamom bun',   'Salt',           0.040),
+
+    ('Rye bread',      'Rye flour',      2.000),
+    ('Rye bread',      'Wheat flour',    1.000),
+    ('Rye bread',      'Fresh yeast',    0.050),
+    ('Rye bread',      'Salt',           0.060),
+    ('Rye bread',      'Sugar',          0.050),
+
+    ('Sesame loaf',    'Wheat flour',    3.000),
+    ('Sesame loaf',    'Fresh yeast',    0.090),
+    ('Sesame loaf',    'Salt',           0.050),
+    ('Sesame loaf',    'Sesame seeds',   0.200),
+    ('Sesame loaf',    'Whole milk',     1.000),
+    ('Sesame loaf',    'Butter',         0.150),
+
+    ('Chocolate cake', 'Dark chocolate', 0.500),
+    ('Chocolate cake', 'Butter',         0.400),
+    ('Chocolate cake', 'Eggs',           0.500),
+    ('Chocolate cake', 'Sugar',          0.350),
+    ('Chocolate cake', 'Wheat flour',    0.250),
+    ('Chocolate cake', 'Cocoa powder',   0.060),
+
+    ('Vanilla hearts', 'Wheat flour',    1.000),
+    ('Vanilla hearts', 'Butter',         0.600),
+    ('Vanilla hearts', 'Sugar',          0.300),
+    ('Vanilla hearts', 'Vanilla sugar',  0.040),
+    ('Vanilla hearts', 'Eggs',           0.150)
+)
+INSERT INTO RecipeIngredient (RecipeId, IngredientId, AmountKg)
+SELECT r.RecipeId, i.IngredientId, v.Amount
+FROM v
+JOIN Product p ON p.Name = v.Product
+JOIN Recipe r ON r.ProductId = p.ProductId
+JOIN Ingredient i ON i.Name = v.Ingredient;
