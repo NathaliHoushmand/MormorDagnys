@@ -47,3 +47,31 @@ JOIN Recipe r ON r.ProductId = p.ProductId
 JOIN RecipeIngredient ri ON ri.RecipeId = r.RecipeId
 GROUP BY p.ProductId
 ORDER BY Ingredients DESC, p.Name;
+
+.print
+.print Purchase history
+SELECT pu.PurchaseDate, s.Name AS Supplier, i.Name AS Ingredient, pl.QuantityKg, pl.PricePerKg,
+       ROUND(pl.QuantityKg * pl.PricePerKg, 2) AS LineTotal
+FROM Purchase pu
+JOIN Supplier s ON s.SupplierId = pu.SupplierId
+JOIN PurchaseLine pl ON pl.PurchaseId = pu.PurchaseId
+JOIN Ingredient i ON i.IngredientId = pl.IngredientId
+ORDER BY pu.PurchaseDate, i.Name;
+
+.print
+.print Total spent per supplier
+SELECT s.Name AS Supplier, COUNT(DISTINCT pu.PurchaseId) AS Orders,
+       ROUND(SUM(pl.QuantityKg * pl.PricePerKg), 2) AS TotalSpent
+FROM Supplier s
+JOIN Purchase pu ON pu.SupplierId = s.SupplierId
+JOIN PurchaseLine pl ON pl.PurchaseId = pu.PurchaseId
+GROUP BY s.SupplierId
+ORDER BY TotalSpent DESC;
+
+.print
+.print Purchase lines where the ingredient belongs to another supplier (should be empty)
+SELECT pu.PurchaseId, pu.PurchaseDate, i.Name AS Ingredient
+FROM Purchase pu
+JOIN PurchaseLine pl ON pl.PurchaseId = pu.PurchaseId
+JOIN Ingredient i ON i.IngredientId = pl.IngredientId
+WHERE i.SupplierId <> pu.SupplierId;

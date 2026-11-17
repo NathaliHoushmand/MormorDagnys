@@ -95,3 +95,46 @@ FROM v
 JOIN Product p ON p.Name = v.Product
 JOIN Recipe r ON r.ProductId = p.ProductId
 JOIN Ingredient i ON i.Name = v.Ingredient;
+
+INSERT INTO Purchase (SupplierId, PurchaseDate) VALUES
+(1, '2026-10-19'),
+(2, '2026-10-21'),
+(3, '2026-10-23'),
+(4, '2026-10-30'),
+(5, '2026-11-04'),
+(1, '2026-11-09'),
+(2, '2026-11-10');
+
+WITH v (SupplierName, PurchaseDate, Ingredient, Quantity, Price) AS (VALUES
+    ('Kullens Kvarn AB',        '2026-10-19', 'Wheat flour',    150.0,   8.90),
+    ('Kullens Kvarn AB',        '2026-10-19', 'Rye flour',       50.0,  10.40),
+    ('Kullens Kvarn AB',        '2026-10-19', 'Fresh yeast',     10.0,  52.00),
+    ('Kullens Kvarn AB',        '2026-10-19', 'Salt',            25.0,   5.50),
+
+    ('Hallands Mejeri & Agg',   '2026-10-21', 'Butter',          40.0,  81.50),
+    ('Hallands Mejeri & Agg',   '2026-10-21', 'Whole milk',      80.0,   9.80),
+    ('Hallands Mejeri & Agg',   '2026-10-21', 'Eggs',            25.0,  29.00),
+
+    ('Sodra Socker & Sotsaker', '2026-10-23', 'Sugar',          100.0,  11.90),
+    ('Sodra Socker & Sotsaker', '2026-10-23', 'Pearl sugar',     15.0,  31.50),
+    ('Sodra Socker & Sotsaker', '2026-10-23', 'Vanilla sugar',    3.0,  96.00),
+
+    ('Orient Spice Import',     '2026-10-30', 'Cardamom',         3.0, 395.00),
+    ('Orient Spice Import',     '2026-10-30', 'Cinnamon',         4.0, 118.00),
+    ('Orient Spice Import',     '2026-10-30', 'Sesame seeds',     6.0,  44.00),
+
+    ('Kakao & Konfektyr',       '2026-11-04', 'Dark chocolate',  15.0,  92.00),
+    ('Kakao & Konfektyr',       '2026-11-04', 'Cocoa powder',     8.0,  74.00),
+
+    ('Kullens Kvarn AB',        '2026-11-09', 'Wheat flour',    100.0,   9.10),
+    ('Kullens Kvarn AB',        '2026-11-09', 'Fresh yeast',      6.0,  53.50),
+
+    ('Hallands Mejeri & Agg',   '2026-11-10', 'Eggs',            20.0,  30.50),
+    ('Hallands Mejeri & Agg',   '2026-11-10', 'Butter',          25.0,  82.00)
+)
+INSERT INTO PurchaseLine (PurchaseId, IngredientId, QuantityKg, PricePerKg)
+SELECT pu.PurchaseId, i.IngredientId, v.Quantity, v.Price
+FROM v
+JOIN Supplier s ON s.Name = v.SupplierName
+JOIN Purchase pu ON pu.SupplierId = s.SupplierId AND pu.PurchaseDate = v.PurchaseDate
+JOIN Ingredient i ON i.Name = v.Ingredient;

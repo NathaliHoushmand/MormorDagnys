@@ -1,5 +1,7 @@
 PRAGMA foreign_keys = ON;
 
+DROP TABLE IF EXISTS PurchaseLine;
+DROP TABLE IF EXISTS Purchase;
 DROP TABLE IF EXISTS RecipeIngredient;
 DROP TABLE IF EXISTS Recipe;
 DROP TABLE IF EXISTS Product;
@@ -65,6 +67,31 @@ CREATE TABLE RecipeIngredient (
         ON DELETE RESTRICT
 );
 
+CREATE TABLE Purchase (
+    PurchaseId   INTEGER PRIMARY KEY AUTOINCREMENT,
+    SupplierId   INTEGER NOT NULL,
+    PurchaseDate TEXT NOT NULL,
+    FOREIGN KEY (SupplierId) REFERENCES Supplier (SupplierId)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+CREATE TABLE PurchaseLine (
+    PurchaseId   INTEGER NOT NULL,
+    IngredientId INTEGER NOT NULL,
+    QuantityKg   REAL NOT NULL CHECK (QuantityKg > 0),
+    PricePerKg   REAL NOT NULL CHECK (PricePerKg >= 0),
+    PRIMARY KEY (PurchaseId, IngredientId),
+    FOREIGN KEY (PurchaseId) REFERENCES Purchase (PurchaseId)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FOREIGN KEY (IngredientId) REFERENCES Ingredient (IngredientId)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
 CREATE INDEX idx_ingredient_supplier ON Ingredient (SupplierId);
 CREATE INDEX idx_product_category ON Product (CategoryId);
 CREATE INDEX idx_recipeingredient_ingredient ON RecipeIngredient (IngredientId);
+CREATE INDEX idx_purchase_supplier ON Purchase (SupplierId);
+CREATE INDEX idx_purchaseline_ingredient ON PurchaseLine (IngredientId);
