@@ -75,3 +75,44 @@ FROM Purchase pu
 JOIN PurchaseLine pl ON pl.PurchaseId = pu.PurchaseId
 JOIN Ingredient i ON i.IngredientId = pl.IngredientId
 WHERE i.SupplierId <> pu.SupplierId;
+
+.print
+.print Products and their suppliers
+SELECT DISTINCT p.Name AS Product, s.Name AS Supplier
+FROM Product p
+JOIN Recipe r ON r.ProductId = p.ProductId
+JOIN RecipeIngredient ri ON ri.RecipeId = r.RecipeId
+JOIN Ingredient i ON i.IngredientId = ri.IngredientId
+JOIN Supplier s ON s.SupplierId = i.SupplierId
+ORDER BY p.Name, s.Name;
+
+.print
+.print Number of products each supplier is needed for
+SELECT s.Name AS Supplier, COUNT(DISTINCT p.ProductId) AS Products
+FROM Supplier s
+JOIN Ingredient i ON i.SupplierId = s.SupplierId
+JOIN RecipeIngredient ri ON ri.IngredientId = i.IngredientId
+JOIN Recipe r ON r.RecipeId = ri.RecipeId
+JOIN Product p ON p.ProductId = r.ProductId
+GROUP BY s.SupplierId
+ORDER BY Products DESC, s.Name;
+
+.print
+.print Ingredient cost per batch
+SELECT p.Name AS Product, ROUND(SUM(ri.AmountKg * i.PricePerKg), 2) AS CostPerBatch
+FROM Product p
+JOIN Recipe r ON r.ProductId = p.ProductId
+JOIN RecipeIngredient ri ON ri.RecipeId = r.RecipeId
+JOIN Ingredient i ON i.IngredientId = ri.IngredientId
+GROUP BY p.ProductId
+ORDER BY CostPerBatch DESC;
+
+.print
+.print Batches possible with current stock
+SELECT p.Name AS Product, CAST(MIN(i.StockKg / ri.AmountKg) AS INTEGER) AS Batches
+FROM Product p
+JOIN Recipe r ON r.ProductId = p.ProductId
+JOIN RecipeIngredient ri ON ri.RecipeId = r.RecipeId
+JOIN Ingredient i ON i.IngredientId = ri.IngredientId
+GROUP BY p.ProductId
+ORDER BY Batches, p.Name;
